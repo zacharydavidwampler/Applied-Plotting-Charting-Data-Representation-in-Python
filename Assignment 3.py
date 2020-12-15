@@ -1,17 +1,9 @@
-#!/usr/bin/env python
-# coding: utf-8
 
-# In[15]:
-
-
-# Use the following data for this assignment:
 get_ipython().run_line_magic('matplotlib', 'notebook')
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as cm
-import math
-
 
 np.random.seed(1233)
 
@@ -69,12 +61,7 @@ def on_press(event):
     plt.xlabel("Year")
     plt.ylabel("Sample mean with 95% CI")
     
-baby = plt.gcf().canvas.mpl_connect('button_press_event',on_press)
-print(baby)
-
-
-# In[ ]:
-
+plt.gcf().canvas.mpl_connect('button_press_event',on_press)
 
 
 
