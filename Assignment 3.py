@@ -1,67 +1,83 @@
-
-get_ipython().run_line_magic('matplotlib', 'notebook')
+%matplotlib notebook
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as cm
+import matplotlib as mpl
+import math
 
 np.random.seed(1233)
 
 df = pd.DataFrame([np.random.normal(32000,200000,3650), 
                    np.random.normal(43000,100000,3650), 
                    np.random.normal(43500,140000,3650), 
-                   np.random.normal(48000,70000,3650), 
-                   np.random.normal(44000,70000,3650)],
-                  index=[1992,1993,1994,1995,1996])
+                   np.random.normal(48000,70000,3650)], 
+                   index=[1992,1993,1994,1995])
 
 SE = df.sem(axis=1).tolist()
 
 plt.figure(figsize=(8,8))
+top = 0
+bottom = 0
 
-def color_bars(uv):
+def color_bars():
     
     for i in range(len(df)):
+        global top
+        global bottom
         mu = df[i].mean()
-        denom = 200000
-        shade = (abs(mu - uv) / denom)
-        top = mu + SE[i]*1.96
+        upper = mu + SE[i]*1.96
+        lower = mu - SE[i]*1.96
+        a = min(top,upper)
+        b = max(bottom,lower)
         
-        if uv == mu:
-            plt.bar(i,mu,color='white',edgecolor='black',yerr=SE[i]*1.96,capsize=10)
-        if uv < mu:
-            plt.bar(i,mu,color=[1,0,0,shade],edgecolor='black',yerr=SE[i]*1.96,capsize=10)
+        if bottom >= upper:
+            shade = 0
+        elif top <= lower:
+            shade = 0
         else:
-            plt.bar(i,mu,color=[0,0,1,shade],edgecolor='black',yerr=SE[i]*1.96,capsize=10)
+            shade = ((a-b)/(upper-lower))
+        
+        
+        
+        plt.bar(i,mu,color=[.7,0,0,shade],edgecolor='black',yerr=SE[i]*1.96,capsize=10)
         plt.xlabel("Year")
         plt.ylabel("Sample mean with 95% CI")
 
-plt.xticks([0,1,2,3,4],['1992','1993','1994','1995','1996'])
-color_bars(0)
-plt.xlim((-.5,4.5))
+plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
+color_bars()
+plt.xlim((-.5,3.5))
 plt.ylim((0,210000))
 
 
 def on_press(event):
-    plt.gcf().canvas.mpl_disconnect(event)
-    print(event.inaxes)
-    #plt.gcf().canvas.mpl_connect('button_press_event')
-    plt.cla()
-    plt.gca()
-    plt.xlim((-.5,4.5))
-    plt.ylim((0,210000))
-    user_value = math.floor(event.ydata)
+    global top
+    global bottom
     
+    if event.inaxes:
+        if event.button == 1:
+            top = math.floor(event.ydata)
+            if top < bottom:
+                top = bottom
+        if event.button == 3:
+            bottom = math.floor(event.ydata)
+            if bottom > top:
+                bottom = top
+        
 
-    
-    plt.hlines(user_value, -.5, 4.5, label = "User Value: {}".format(user_value, event.ydata))
-    plt.legend()
-    
-    color_bars(user_value)
-    plt.xticks([0,1,2,3,4],['1992','1993','1994','1995','1996'])
-    plt.xlabel("Year")
-    plt.ylabel("Sample mean with 95% CI")
+        plt.cla()
+        plt.gca()
+        plt.xlim((-.5,3.5))
+        plt.ylim((0,210000))
+        
+        plt.hlines(top,-.5, 3.5, label = "Upper bound: {}".format(top))
+        plt.hlines(bottom,-.5, 3.5, label = "Lower bound: {}".format(bottom))
+        plt.fill_between((-.5,3.5),top,bottom,color = [0,0,1,.5])
+
+        plt.legend()
+        color_bars()
+        plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
+        plt.xlabel("Year")
+        plt.ylabel("Sample mean with 95% CI")
     
 plt.gcf().canvas.mpl_connect('button_press_event',on_press)
-
-
-
