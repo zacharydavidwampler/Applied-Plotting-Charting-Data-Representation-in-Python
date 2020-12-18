@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as cm
 import matplotlib as mpl
 import math
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 np.random.seed(1233)
 
@@ -16,9 +17,19 @@ df = pd.DataFrame([np.random.normal(32000,200000,3650),
 
 SE = df.sem(axis=1).tolist()
 
-plt.figure(figsize=(8,8))
+fig = plt.figure(figsize=(8,8))
+fig.add_subplot(111)
+
 top = 0
 bottom = 0
+
+plt.xlabel("Year")
+plt.ylabel=("Sample mean with 95% CI")
+plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
+plt.xlim((-.5,3.5))
+plt.ylim((0,210000))
+
+
 
 def color_bars():
     
@@ -38,23 +49,23 @@ def color_bars():
         else:
             shade = ((a-b)/(upper-lower))
         
-        
-        
         plt.bar(i,mu,color=[.7,0,0,shade],edgecolor='black',yerr=SE[i]*1.96,capsize=10)
-        plt.xlabel("Year")
-        plt.ylabel("Sample mean with 95% CI")
+        plt.xlim((-.5,3.5))
+        plt.ylim((0,210000))
+        plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
 
-plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
 color_bars()
-plt.xlim((-.5,3.5))
-plt.ylim((0,210000))
-
 
 def on_press(event):
+    
     global top
     global bottom
     
     if event.inaxes:
+        plt.cla()
+        plt.gca()
+
+
         if event.button == 1:
             top = math.floor(event.ydata)
             if top < bottom:
@@ -64,20 +75,12 @@ def on_press(event):
             if bottom > top:
                 bottom = top
         
-
-        plt.cla()
-        plt.gca()
-        plt.xlim((-.5,3.5))
-        plt.ylim((0,210000))
-        
         plt.hlines(top,-.5, 3.5, label = "Upper bound: {}".format(top))
         plt.hlines(bottom,-.5, 3.5, label = "Lower bound: {}".format(bottom))
         plt.fill_between((-.5,3.5),top,bottom,color = [0,0,1,.5])
 
         plt.legend()
         color_bars()
-        plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
-        plt.xlabel("Year")
-        plt.ylabel("Sample mean with 95% CI")
-    
+
+
 plt.gcf().canvas.mpl_connect('button_press_event',on_press)
