@@ -18,7 +18,6 @@ df = pd.DataFrame([np.random.normal(32000,200000,3650),
 SE = df.sem(axis=1).tolist()
 
 fig = plt.figure()
-fig.add_subplot(111)
 
 top = 0
 bottom = 0
