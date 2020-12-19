@@ -17,21 +17,23 @@ df = pd.DataFrame([np.random.normal(32000,200000,3650),
 
 SE = df.sem(axis=1).tolist()
 
-fig = plt.figure(figsize=(8,8))
+fig = plt.figure()
 fig.add_subplot(111)
 
 top = 0
 bottom = 0
 
+cmap = plt.get_cmap('Reds')
+ax1 = fig.subplots()
+sm = plt.cm.ScalarMappable(cmap=cmap,norm=mpl.colors.Normalize(vmin=0,vmax=100))
+cb = plt.colorbar(sm,ax=ax1)
+
 plt.xlabel("Year")
 plt.ylabel=("Sample mean with 95% CI")
-plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
-plt.xlim((-.5,3.5))
-plt.ylim((0,210000))
-
-
 
 def color_bars():
+    
+    
     
     for i in range(len(df)):
         global top
@@ -54,7 +56,14 @@ def color_bars():
         plt.ylim((0,210000))
         plt.xticks([0,1,2,3],['1992','1993','1994','1995'])
 
+
+    
+        
+
+
 color_bars()
+
+
 
 def on_press(event):
     
@@ -80,7 +89,10 @@ def on_press(event):
         plt.fill_between((-.5,3.5),top,bottom,color = [0,0,1,.5])
 
         plt.legend()
+        
         color_bars()
+
+
 
 
 plt.gcf().canvas.mpl_connect('button_press_event',on_press)
